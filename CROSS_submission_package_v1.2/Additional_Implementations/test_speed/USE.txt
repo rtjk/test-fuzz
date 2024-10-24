@@ -1,0 +1,20 @@
+
+# avx2
+rm -rf build; mkdir build && cd build && cmake ../ && make && echo "# BUILD AND MAKE DONE" ; cd .. && ./build/bin/test_speed.o
+
+# reference
+rm -rf build; mkdir build && cd build && cmake ../ -DREFERENCE=1 && make && echo "# BUILD AND MAKE DONE" ; cd .. && ./build/bin/test_speed.o
+
+# print speed
+rm -rf build; mkdir build && cd build && cmake ../ && make && echo "# BUILD AND MAKE DONE" ; cd ..
+sudo cpufreq-set -c 0 --min 400000 --max 400000 && sudo cpufreq-set -c 1 --min 400000 --max 400000 && sudo cpufreq-set -c 2 --min 400000 --max 400000 && sudo cpufreq-set -c 3 --min 400000 --max 400000
+cd build/bin
+for file in *; do if [[ -x "$file" && ! -d "$file" ]]; then echo "$file"; ./"$file"; fi; done
+
+# KAT
+rm -rf build; mkdir build; cd build; cmake ../; make; echo "# BUILD AND MAKE DONE"; cd ..
+cd build; ./bin/CROSS_KATgen_cat_1_RSDP_BALANCED; sha256sum PQCsignKAT_77_12912.rsp; cd ..
+
+# check secret-dependent control flow
+#define VALGRIND_CHECK_SECRET_DEPENDENT_BRANCHING
+valgrind --track-origins=yes --tool=memcheck --gen-suppressions=all --error-exitcode=1 --max-stackframe=20480000 --num-callers=20 ./build/bin/test_speed.o
